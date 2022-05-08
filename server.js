@@ -23,8 +23,9 @@ let maxRoleId = 0;
             type: 'list',
             name: 'selection',
             message: 'What would you like to do?',
-            choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 
-            'Update employee manager', 'Add a role', 'Add an employee', 'Delete a record','Exit']
+            choices: ['View all departments', 'View all roles', 'View all employees', 'View employee by manager',
+            'View employees by department', 'View department budget','Add a department', 
+            'Update employee role', 'Update employee manager','Add a role', 'Add an employee', 'Delete a record','Exit']
           },
       ]
     ).then(option =>{
@@ -39,6 +40,15 @@ let maxRoleId = 0;
         else if(option.selection=='View all employees'){
             viewEmployee();
         }
+        else if(option.selection=='View employee by manager'){
+          viewEmployeeByManager();
+        }
+        else if(option.selection=='View employees by department'){
+          viewEmployeeByDepartment();
+        }
+        else if(option.selection=='View department budget'){
+          viewBudgetByDepartment();
+        }
         else if(option.selection =='Add a department'){
             addDep();
         }
@@ -48,8 +58,11 @@ let maxRoleId = 0;
         else if(option.selection =='Add an employee'){
             addEmployee();
         }
+        else if(option.selection == 'Update employee role'){
+          updateEmployeeRole();
+        }
         else if(option.selection == 'Update employee manager'){
-          updateEmployee();
+          updateEmployeeManager();
         }
         else if(option.selection =="Delete a record"){
           deleteRecord();
@@ -168,7 +181,89 @@ function viewEmployee() {
   });
 }
 
-function updateEmployee() {
+function viewEmployeeByManager() {
+  return inquirer.prompt([
+    {
+        type: 'input',
+        name: 'manager',
+        message: 'What is the id of the manager?'
+      }
+  ]).then(employee =>{
+      //console.log(employee.manager);
+      const sql =  `SELECT employee.first_name AS "Employee Name", employee.last_name AS "Employee Last Name", role.title AS "Role Title", department.name AS "Department",
+      role.salary AS "Salary", employee.first_name AS Manager FROM employee
+      LEFT JOIN role ON employee.role_id = role.id
+      LEFT JOIN department ON role.department_id = department.id
+      LEFT JOIN employee Manager ON employee.manager_id = employee.id
+      where employee.manager_id =?`;
+        const params = [employee.manager];
+        db.query(sql, params, (err, result) => {
+          if (err) {
+            console.log(err);
+          }
+          console.table(result);
+          promptUser();
+        });
+  });
+ 
+}
+
+function viewEmployeeByDepartment() {
+  return inquirer.prompt([
+    {
+        type: 'input',
+        name: 'department',
+        message: 'What is the id of the department?'
+      }
+  ]).then(employee =>{
+      //console.log(employee.manager);
+      const sql =  `SELECT employee.first_name AS "Employee Name", employee.last_name AS "Employee Last Name", role.title AS "Role Title", department.name AS "Department",
+      role.salary AS "Salary", employee.first_name AS Manager FROM employee
+      LEFT JOIN role ON employee.role_id = role.id
+      LEFT JOIN department ON role.department_id = department.id
+      LEFT JOIN employee Manager ON employee.manager_id = employee.id
+      where department.id =?`;
+        const params = [employee.department];
+        db.query(sql, params, (err, result) => {
+          if (err) {
+            console.log(err);
+          }
+          console.table(result);
+          promptUser();
+        });
+  });
+ 
+}
+
+function viewBudgetByDepartment() {
+  return inquirer.prompt([
+    {
+        type: 'input',
+        name: 'department',
+        message: 'What is the id of the department?'
+      }
+  ]).then(employee =>{
+      //console.log(employee.manager);
+      const sql =  `SELECT SUM(role.salary) AS "Department Budget" from employee
+      LEFT JOIN role ON employee.role_id = role.id
+      LEFT JOIN department ON role.department_id = department.id
+      where department.id =?`;
+        const params = [employee.department];
+        db.query(sql, params, (err, result) => {
+          if (err) {
+            console.log(err);
+          }
+          console.table(result);
+          promptUser();
+        });
+  });
+ 
+}
+
+
+
+
+function updateEmployeeRole() {
   return inquirer.prompt([
     {
         type: 'input',
@@ -194,6 +289,32 @@ function updateEmployee() {
   });
 };
   
+
+function updateEmployeeManager() {
+  return inquirer.prompt([
+    {
+        type: 'input',
+        name: 'employee',
+        message: 'What is the id of the employee?'
+      },
+      {
+        type: 'input',
+        name: 'manager',
+        message: 'What is the id of the new role?'
+      }
+  ]).then(employee =>{
+      console.log(employee.employee);
+      const sql = `UPDATE employee set manager_id = ? WHERE id = ?`;
+        const params = [employee.manager, employee.employee];
+        db.query(sql, params, (err, result) => {
+          if (err) {
+            console.log(err);
+          }
+          console.log('Updated employee from the database');
+          promptUser();
+        });
+  });
+};
   
 //Get all the department
 function viewDepartment(){
