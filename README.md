@@ -1,13 +1,15 @@
 # workforce-employee-tracker
 
 ## Description  
-This project consisted of creating a database with the correct joins and a command line interface to taske user input.
-The demos below connsist of the CLI on the left and mysql table on the right to see the changes made to the database through the CLI.
+This project consisted of creating a database with the correct joins and a command line interface to taske user input.  
 
 ## Technologies Used
 - mysql2- to create the database
 - Inquirer- to take user input
 - console.table package - to format tables
+
+## Invoking the Application
+- Run this command on the terminal: npm start
 
 ## Database Setup  
 - Log on to mysql
